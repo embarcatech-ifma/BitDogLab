@@ -1,6 +1,7 @@
 
 ## 🖥️ Exibição de Texto no Display OLED (SSD1306)
 
+### Obs: os arquivos do ssd1306 devem estar na mesma pasta do arquivo.c
 
 ### ⚙️ 1. Inicialização do I2C e do Display
 
