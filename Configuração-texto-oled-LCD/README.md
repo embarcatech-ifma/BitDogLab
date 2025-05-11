@@ -2,7 +2,25 @@
 ## 🖥️ Exibição de Texto no Display OLED (SSD1306)
 
 ### Obs: os arquivos do ssd1306 devem estar na mesma pasta do arquivo.c
+```c
+            ss1306_font.h
+            ss1306_i2c.c
+            ss1306_i2c.h
+            ss1306.h
+```
+### Tem que ser adicionado no cmakelist as configurações abaixo:
+```c
+            add_executable(nomedoarquivo nomedoarquivo.c ssd1306_i2c.c) //aqui o cmakelist linka com o arquivo ssd1306.c que faz parte da biblioteca do OLED
 
+            # Add any user requested libraries
+            target_link_libraries(nomedoarquivo 
+                    hardware_timer
+                    hardware_gpio
+                    hardware_adc  
+                    hardware_dma
+                    hardware_i2c
+                    )
+```
 ### ⚙️ 1. Inicialização do I2C e do Display
 
 ```c
@@ -40,7 +58,7 @@ render_on_display(ssd, &frame_area);
 ### ✅ Resultado
 
 O display OLED mostra mensagens como:
-
+```c
 - `Hello Word`
-
+```
 
