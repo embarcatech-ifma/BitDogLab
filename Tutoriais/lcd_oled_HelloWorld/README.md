@@ -62,3 +62,6 @@ O display OLED mostra mensagens como:
 - `Hello Word`
 ```
 
+![WhatsApp Image 2025-05-13 at 15 20 11](https://github.com/user-attachments/assets/c9a29799-c07e-45fd-860f-dc41a627e899)
+
+
