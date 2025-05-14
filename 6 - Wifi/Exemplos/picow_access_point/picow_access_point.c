@@ -308,7 +308,7 @@ int main() {
     // Get notified if the user presses a key
     stdio_set_chars_available_callback(key_pressed_func, state);
 
-    const char *ap_name = "picow_test";
+    const char *ap_name = "teste_gomes";
 #if 1
     const char *password = "password";
 #else

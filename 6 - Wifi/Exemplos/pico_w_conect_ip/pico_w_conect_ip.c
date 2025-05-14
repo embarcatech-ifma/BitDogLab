@@ -1,64 +1,65 @@
-/*
- * Projeto: Conexão Wi-Fi com Raspberry Pi Pico W
- *
- * Objetivo:
- * Conectar o Raspberry Pi Pico W a uma rede Wi-Fi utilizando o módulo CYW43439
- * e exibir o endereço IP atribuído. O programa serve como um teste simples
- * para validar a capacidade de conexão do dispositivo a redes sem fio.
- *
- * Funcionalidades:
- * - Inicialização do módulo Wi-Fi CYW43439.
- * - Conexão a uma rede Wi-Fi via SSID e senha.
- * - Impressão do nome da rede e do IP atribuído.
- * - Manutenção da conexão ativa utilizando polling.
- *
- * Adaptação baseada em exemplo oficial da Raspberry Pi:
- * https://github.com/raspberrypi/pico-examples
- */
-
-#include "pico/cyw43_arch.h"    // Biblioteca para o módulo Wi-Fi CYW43439
-#include "pico/stdlib.h"        // Biblioteca padrão para GPIO, delays, stdio etc.
-#include "lwip/tcp.h"           // Incluída para possíveis comunicações TCP (não usada aqui)
-#include <string.h>
+#include "pico/cyw43_arch.h"
+#include "pico/stdlib.h"
 #include <stdio.h>
+#include <string.h>
 
-// Define o nome e a senha da rede Wi-Fi a ser conectada
-#define WIFI_SSID "nome da rede"
-#define WIFI_PASS "senha"
+// ⚙️ CONFIGURAÇÃO DA REDE
+#define WIFI_SSID "Gomez"
+#define WIFI_PASS "32433108"
+#define WIFI_AUTH CYW43_AUTH_WPA2_AES_PSK // ou CYW43_AUTH_OPEN para rede sem senha
+
+#define MAX_TENTATIVAS 5
+#define TIMEOUT_CONEXAO_MS 15000
 
 int main() {
-    stdio_init_all();     // Inicializa a comunicação USB serial
-    sleep_ms(3000);       // Espera para garantir a conexão da porta serial
+    stdio_init_all();
+    sleep_ms(3000); // Aguarda USB estabilizar
 
-    printf("Iniciando conexão Wi-Fi...\n");
+    printf("Iniciando módulo Wi-Fi...\n");
 
-    // Inicializa o sistema do módulo CYW43439
     if (cyw43_arch_init()) {
-        printf("Erro ao inicializar o módulo CYW43439.\n");
-        return 1;  // Encerra o programa em caso de erro
+        printf("❌ Erro ao inicializar o CYW43439.\n");
+        return 1;
     }
 
-    // Ativa o modo "station", que permite se conectar a uma rede existente
     cyw43_arch_enable_sta_mode();
 
-    // Conecta à rede com timeout de 10 segundos
-    if (cyw43_arch_wifi_connect_timeout_ms(WIFI_SSID, WIFI_PASS, CYW43_AUTH_WPA2_AES_PSK, 10000)) {
-        printf("Falha ao conectar à rede Wi-Fi.\n");
-        return 1;  // Encerra se não conseguir conectar
-    } else {
-        printf("Conectado à rede Wi-Fi: %s\n", WIFI_SSID);  // Exibe o SSID
-        // Obtém o endereço IP atual do dispositivo
-        uint8_t *ip = (uint8_t*)&cyw43_state.netif[0].ip_addr.addr;
-        printf("Endereço IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+    bool conectado = false;
+    for (int tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
+        printf("🔄 Tentativa %d de conexão com a rede: %s\n", tentativa, WIFI_SSID);
+
+        int status = cyw43_arch_wifi_connect_timeout_ms(
+            WIFI_SSID,
+            (WIFI_AUTH == CYW43_AUTH_OPEN) ? NULL : WIFI_PASS,
+            WIFI_AUTH,
+            TIMEOUT_CONEXAO_MS
+        );
+
+        if (status == 0) {
+            conectado = true;
+            break;
+        } else {
+            printf("⚠️  Falha ao conectar (código de erro: %d)\n", status);
+            sleep_ms(2000); // espera antes da próxima tentativa
+        }
     }
 
-    // Loop infinito para manter a conexão viva
+    if (!conectado) {
+        printf("❌ Todas as tentativas falharam. Encerrando...\n");
+        return 1;
+    }
+
+    printf("✅ Conectado com sucesso à rede Wi-Fi: %s\n", WIFI_SSID);
+
+    uint8_t *ip = (uint8_t*)&cyw43_state.netif[0].ip_addr.addr;
+    printf("📡 Endereço IP: %d.%d.%d.%d\n", ip[0], ip[1], ip[2], ip[3]);
+
+    // Loop principal
     while (true) {
-        cyw43_arch_poll(); // Necessário para manter o funcionamento da pilha de rede
-        sleep_ms(1000);    // Aguarda 1 segundo (pode ser ajustado)
+        cyw43_arch_poll();
+        sleep_ms(1000);
     }
 
-    // Encerramento do Wi-Fi (nunca será executado neste código)
     cyw43_arch_deinit();
     return 0;
 }
