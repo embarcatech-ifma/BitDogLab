@@ -68,7 +68,6 @@ static void iniciar_dma_temp(uint16_t *buffer, dma_channel_config *cfg, int dma_
     adc_run(false);
     adc_fifo_setup(true, true, 1, false, false);
     adc_run(true);
-
     dma_channel_configure(
         dma_chan,
         cfg,
