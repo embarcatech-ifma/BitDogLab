@@ -2,8 +2,9 @@ add_executable(picow_freertos
     main.c
 )
 
-# Corrige a saída para build/ em vez de build/src/
-set_target_properties(picow_freertos PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set_target_properties(picow_freertos PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+)
 
 target_sources(picow_freertos
     PRIVATE
@@ -19,6 +20,7 @@ target_include_directories(picow_freertos PRIVATE
 
 target_link_libraries(picow_freertos 
     pico_stdlib 
+    hardware_adc
     FreeRTOS-Kernel
 )
 
